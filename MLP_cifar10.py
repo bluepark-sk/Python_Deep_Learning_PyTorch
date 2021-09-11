@@ -25,18 +25,17 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=BATCH
 
 # 4. 데이터 확인하기 (1)
 for (X_train, y_train) in train_loader:
-    print('X_train:', X_train.size(), 'type:', X_train.type())
+    print('X_train:', X_train.size(), 'type:', X_train.type()) # torch size : [batch=32, channel=3, height=32, width=32]
     print('y_train:', y_train.size(), 'type:', y_train.type())
     break
 
 # 5. 데이터 확인하기 (2)
 pltsize = 1
 plt.figure(figsize=(10*pltsize, pltsize))
-
 for i in range(10):
     plt.subplot(1, 10, i+1)
     plt.axis('off')
-    plt.imshow(np.transpose(X_train[i], (1, 2, 0)))
+    plt.imshow(np.transpose(X_train[i], (2, 1, 0)))
     plt.title('Class: ' + str(y_train[i].item()))
 
 # 6. Multi Layer Perceptron (MLP) 모델 설계하기

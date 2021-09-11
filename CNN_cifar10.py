@@ -18,8 +18,11 @@ BATCH_SIZE = 32
 EPOCHS = 10
 
 # 3. CIFAR10 데이터 다운로드 (Train set, Test set 분리하기)
+
+# Without Data Augmentation
 # train_dataset = datasets.CIFAR10(root='../data/CIFAR_10', train=True, download=True, transform=transforms.ToTensor())
 # test_dataset = datasets.CIFAR10(root='../data/CIFAR_10', train=False, transform=transforms.ToTensor())
+
 # Data Augmentation
 train_dataset = datasets.CIFAR10(
                                  root='../data/CIFAR_10',

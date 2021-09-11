@@ -20,13 +20,13 @@ EPOCHS = 10
 
 # 3. MNIST 데이터 다운로드 (Train set, Test set 분리하기)
 train_dataset = datasets.MNIST(root='../data/MNIST', train=True, download=True, transform=transforms.ToTensor())
-test_dataset = datasets.MNIST(root='../data/MNIST', train=False, transform=transforms.ToTensor())
+test_dataset = datasets.MNIST(root='../data/MNIST', train=False, transform=transforms.ToTensor()) # transforms.ToTensor() : tensor 형태로 변경, 픽셀 값 0~255에서 0~1로 정규화
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=True)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 # 4. 데이터 확인하기 (1)
 for (X_train, y_train) in train_loader:
-    print('X_train:', X_train.size(), 'type:', X_train.type())
+    print('X_train:', X_train.size(), 'type:', X_train.type()) # size : batch, channel, height, width
     print('y_train:', y_train.size(), 'type:', y_train.type())
     break
 
@@ -65,6 +65,7 @@ class Net(nn.Module):
         x = F.dropout(x, training=self.training, p=self.dropout_prob)
         x = self.fc3(x)
         x = F.log_softmax(x, dim=1)
+        return x
 
 # 7. Optimizer, Objective Function 설정하기
 import torch.nn.init as init
@@ -75,7 +76,7 @@ def weight_init(m):
 model = Net().to(DEVICE)
 model.apply(weight_init)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
-optimizer = torch.optim.Adam(model.parameters, lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 criterion = nn.CrossEntropyLoss()
 
 print(model)

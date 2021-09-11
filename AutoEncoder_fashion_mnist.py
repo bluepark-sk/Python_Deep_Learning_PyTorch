@@ -25,7 +25,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=BATCH
 
 # 4. 데이터 확인하기 (1)
 for (X_train, y_train) in train_loader:
-    print('X_train:', X_train.size(), 'type:', X_train.type())
+    print('X_train:', X_train.size(), 'type:', X_train.type()) # torch size : batch, channel, height, width
     print('y_train:', y_train.size(), 'type:', y_train.type())
     break
 
@@ -36,7 +36,7 @@ for i in range(10):
     plt.subplot(1, 10, i+1)
     plt.axis('off')
     plt.imshow(X_train[i, :, :, :].numpy().reshape(28, 28), cmap='gray_r')
-    plt.title('Class: ' + str(y_train[i].items()))
+    plt.title('Class: ' + str(y_train[i].item()))
 
 # 6. AutoEncoder(AE) 모델 설계하기
 class AE(nn.Module):

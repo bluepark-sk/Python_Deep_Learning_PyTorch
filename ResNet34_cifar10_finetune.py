@@ -59,93 +59,20 @@ for i in range(10):
     plt.imshow(np.transpose(X_train[i], (1, 2, 0)))
     plt.title('Class: ' + str(y_train[i].item()))
 
-# 6. ResNet 모델 설계하기
-class BasicBlock(nn.Module):
-    def __init__(self, in_planes, planes, stride=1):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(
-            in_planes,
-            planes,
-            kernel_size=3,
-            stride=stride,
-            padding=1,
-            bias=False
-        )
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(
-            planes,
-            planes,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
-        )
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(
-                    in_planes,
-                    planes,
-                    kernel_size=1,
-                    stride=stride,
-                    bias=False
-                ),
-                nn.BatchNorm2d(planes)
-            )
-    
-    def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
-        out = F.relu(out)
-        return out
-
-class ResNet(nn.Module):
-    def __init__(self, num_classes=10):
-        super(ResNet, self).__init__()
-        self.in_planes = 16
-
-        self.conv1 = nn.Conv2d(
-            3,
-            16,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
-        )
-        self.bn1 = nn.BatchNorm2d(16)
-        self.layer1 = self._make_layer(16, 2, stride=1)
-        self.layer2 = self._make_layer(32, 2, stride=2)
-        self.layer3 = self._make_layer(64, 2, stride=2)
-        self.linear = nn.Linear(64, num_classes)
-        
-    def _make_layer(self, planes, num_blocks, stride):
-        strides = [stride] + [1] * (num_blocks - 1)
-        layers = []
-        for stride in strides:
-            layers.append(BasicBlock(self.in_planes, planes, stride))
-            self.in_planes = planes
-        return nn.Sequential(*layers)
-    
-    def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.layer1(out)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = F.avg_pool2d(out, 8)
-        out = out.view(out.size(0), -1)
-        out = self.linear(out)
-        return out
+# 6. ImageNet 데이터로 학습된 ResNet34 모델을 불러온 후 Fine-tuning 해보기
+import torchvision.models as models
+model = models.resnet34(pretrained=True) # ImageNet 데이터를 잘 분류할 수 있도록 학습된 파라미터를 ResNet34 모델에 적용해 불러오는 것
+num_ftrs = model.fc.in_features
+model.fc = nn.Linear(num_ftrs, 10)
+model = model.cuda() # model.to(DEVICE)와 동일
 
 # 7. Optimizer, Objective Function 설정하기
-model = ResNet().to(DEVICE)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.CrossEntropyLoss()
 
 print(model)
 
-# 8. ResNet 모델 학습을 진행하며 학습 데이터에 대한 모델 성능을 확인하는 함수 정의
+# 8. ResNet34 모델 학습을 진행하며 학습 데이터에 대한 모델 성능을 확인하는 함수 정의
 def train(model, train_loader, optimizer, log_interval):
     model.train()
     for batch_idx, (image, label) in enumerate(train_loader):
@@ -179,9 +106,8 @@ def evaluate(model, test_loader):
     test_accuracy = 100. * correct / len(test_loader.dataset)
     return test_loss, test_accuracy
 
-# 10. ResNet 학습을 실행하며 Train, Test set의 Loss 및 Test set Accuracy 확인하기
-for Epoch in range(1, EPOCHS+1):
+# 11. ResNet34 학습을 실행하며 Train, Test set의 Loss 및 Test set Accuracy 확인하기
+for Epoch in range(1, EPOCHS + 1):
     train(model, train_loader, optimizer, log_interval=200)
     test_loss, test_accuracy = evaluate(model, test_loader)
     print('\n[EPOCH: {}], \tTest Loss: {:.4f}, \tTest Accuracy: {:.2f} %\n'.format(Epoch, test_loss, test_accuracy))
-        

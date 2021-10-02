@@ -4,11 +4,11 @@ from torchtext.legacy import datasets
 
 # Data Setting
 TEXT = data.Field(batch_first=True,
-                  fix_length=500,
+                  fix_length=500, # Sentence 길이 제한
                   tokenize=str.split,
-                  pad_first=True,
-                  pad_token='[PAD]',
-                  unk_token='[UNK]')
+                  pad_first=True, # fix_length 보다 짧은 문장의 경우 Padding 필요 -> Padding을 앞에 넣음
+                  pad_token='<pad>',
+                  unk_token='<unk>') # Token dictionary에 없는 Token이 나왔을 경우 해당 Token을 표현하는 특수 Token
 
 LABEL = data.LabelField(dtype=torch.float)
 
